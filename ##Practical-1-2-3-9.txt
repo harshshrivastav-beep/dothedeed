@@ -1,0 +1,548 @@
+## Practical-1 Simple Linear Regression
+
+import numpy as np
+from sklearn.model_selection import train_test_split
+from sklearn.linear_model import LinearRegression
+
+# Create a synthetic dataset for demonstration
+X = np.array([1, 2, 3, 4, 5, 6, 7, 8, 9, 10]).reshape(-1, 1)  # Example Feature (e.g., Experience)
+y = np.array([2, 4, 5, 4, 5, 7, 8, 9, 10, 12])  # Example Target (e.g., Salary)
+
+print("Original X:\n", X)
+print("Original y:\n", y)
+
+# Split the data into training and testing sets
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, test_size=0.2, random_state=42
+)
+
+print("X_train:\n", X_train)
+print("X_test:\n", X_test)
+print("y_train:\n", y_train)
+print("y_test:\n", y_test)
+
+# Initialize and train the Linear Regression model
+model = LinearRegression()
+model.fit(X_train, y_train)
+
+# Make predictions on the test set
+y_pred = model.predict(X_test)
+
+print("Predicted y_pred:\n", y_pred)
+
+import matplotlib.pyplot as plt
+from sklearn.metrics import mean_squared_error, r2_score
+
+mse = mean_squared_error(y_test, y_pred)
+r2 = r2_score(y_test, y_pred)
+
+print("MSE=", mse)
+print("R2=", r2)
+
+plt.scatter(X, y, color='blue')
+plt.plot(X, model.predict(X), color='red')
+plt.xlabel("Experience")
+plt.ylabel("Salary")
+plt.title("Simple Linear Regression")
+plt.show()
+
+########################################################################################################
+
+## Practical -1 Multi Linear Regression
+
+## First create a Excel file add - 10 rows of Experience, Age, Education, Salary
+
+import pandas as pd
+
+# Read the Excel file
+df = pd.read_excel("/sample_multiple_linear_regression_data.xlsx")
+
+# Display first 5 rows
+print(df.head())
+
+# Display column names
+print(df.columns)
+
+# Independent Variables
+X = df[['Experience', 'Age', 'Education']]
+
+# Dependent Variable
+y = df['Salary']
+
+from sklearn.model_selection import train_test_split
+
+X_train, X_test, y_train, y_test = train_test_split(
+    X,
+    y,
+    test_size=0.2,
+    random_state=42
+)
+
+from sklearn.linear_model import LinearRegression
+
+model = LinearRegression()
+model.fit(X_train, y_train)
+
+print("Model Trained Successfully!")
+
+y_pred = model.predict(X_test)
+
+print("Predicted Values:")
+print(y_pred)
+
+from sklearn.metrics import mean_squared_error, r2_score
+
+mse = mean_squared_error(y_test, y_pred)
+r2 = r2_score(y_test, y_pred)
+
+print("Mean Squared Error (MSE):", mse)
+print("R² Score:", r2)
+
+print("Intercept:", model.intercept_)
+print("\nCoefficients:")
+
+for feature, coefficient in zip(X.columns, model.coef_):
+    print(f"{feature}: {coefficient}")
+
+
+comparison = pd.DataFrame({
+    "Actual Salary": y_test.values,
+    "Predicted Salary": y_pred
+})
+
+print(comparison)
+
+import matplotlib.pyplot as plt
+import numpy as np
+
+plt.figure(figsize=(8, 6))
+
+# Scatter plot
+plt.scatter(y_test, y_pred, color='blue', label='Predicted Values')
+
+# Perfect prediction line
+min_val = df['Salary'].min()
+max_val = df['Salary'].max()
+
+plt.plot(
+    [min_val, max_val],
+    [min_val, max_val],
+    color='red',
+    linewidth=2,
+    label='Ideal Prediction'
+)
+
+plt.xlabel("Actual Salary")
+plt.ylabel("Predicted Salary")
+plt.title("Actual vs Predicted Salary")
+plt.legend()
+plt.grid(True)
+plt.show()
+
+new_employee = pd.DataFrame([[8, 30, 18]], columns=['Experience', 'Age', 'Education'])
+
+predicted_salary = model.predict(new_employee)
+
+print("Predicted Salary:", predicted_salary[0])
+
+#####################################################################################################################
+
+## Practical-1 Polynomial Regression
+
+## ## First create a Excel file add - 10 rows of Experience, Salary
+
+
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+
+# Read Excel file
+df = pd.read_excel("/sample_polynomial_regression_data.xlsx")
+print(df.head())
+
+X = df[['Experience']]
+y = df['Salary']
+
+from sklearn.preprocessing import PolynomialFeatures
+
+# Degree of polynomial
+poly = PolynomialFeatures(degree=2)
+X_poly = poly.fit_transform(X)
+
+from sklearn.model_selection import train_test_split
+
+X_train, X_test, y_train, y_test = train_test_split(
+    X_poly,
+    y,
+    test_size=0.2,
+    random_state=42
+)
+
+from sklearn.linear_model import LinearRegression
+
+model = LinearRegression()
+model.fit(X_train, y_train)
+
+print("Polynomial Regression Model Trained Successfully!")
+
+y_pred = model.predict(X_test)
+
+print("Predicted Values:")
+print(y_pred)
+
+from sklearn.metrics import mean_squared_error, r2_score
+
+mse = mean_squared_error(y_test, y_pred)
+r2 = r2_score(y_test, y_pred)
+
+print("Mean Squared Error:", mse)
+print("R² Score:", r2)
+
+X_grid = np.arange(X['Experience'].min(), X['Experience'].max(), 0.1)
+X_grid = X_grid.reshape(-1, 1)
+X_grid_poly = poly.transform(X_grid)
+
+plt.figure(figsize=(8, 6))
+
+plt.scatter(X, y, color='blue', label='Actual Data')
+
+plt.plot(
+    X_grid,
+    model.predict(X_grid_poly),
+    color='red',
+    linewidth=2,
+    label='Polynomial Curve'
+)
+
+plt.xlabel("Experience")
+plt.ylabel("Salary")
+plt.title("Polynomial Regression")
+plt.legend()
+plt.grid(True)
+plt.show()
+
+new_experience = [[8]]
+new_poly = poly.transform(new_experience)
+
+predicted_salary = model.predict(new_poly)
+
+print("Predicted Salary:", predicted_salary[0])
+
+########################################################################################################
+
+## Practical-2 Artificial Neural Network (ANN) Classification using the Iris Dataset with TensorFlow/Keras
+
+import numpy as np
+import pandas as pd
+from sklearn.datasets import load_iris
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
+from sklearn.metrics import (
+    accuracy_score,
+    confusion_matrix,
+    classification_report
+)
+import tensorflow as tf
+from tensorflow.keras.models import Sequential
+from tensorflow.keras.layers import Dense
+
+# Load Dataset
+iris = load_iris()
+X = iris.data
+y = iris.target
+
+print(X[:5])
+print(y[:5])
+
+# Create DataFrame
+df = pd.DataFrame(X, columns=iris.feature_names)
+df['Species'] = y
+
+print(df.head())
+
+# Split Dataset
+X_train, X_test, y_train, y_test = train_test_split(
+    X,
+    y,
+    test_size=0.2,
+    random_state=42
+)
+
+# Standardize Data
+scaler = StandardScaler()
+X_train = scaler.fit_transform(X_train)
+X_test = scaler.transform(X_test)
+
+# Build ANN Model
+model = Sequential()
+model.add(Dense(units=8, activation='relu', input_shape=(4,)))
+model.add(Dense(units=6, activation='relu'))
+model.add(Dense(units=3, activation='softmax'))
+
+# Display Model Summary
+model.summary()
+
+# Compile Model
+model.compile(
+    optimizer='adam',
+    loss='sparse_categorical_crossentropy',
+    metrics=['accuracy']
+)
+
+# Train Model
+history = model.fit(
+    X_train,
+    y_train,
+    epochs=50,
+    batch_size=8,
+    verbose=1
+)
+
+# Predictions
+y_pred_prob = model.predict(X_test)
+y_pred = np.argmax(y_pred_prob, axis=1)
+
+# Accuracy
+accuracy = accuracy_score(y_test, y_pred)
+print("Accuracy:", accuracy)
+
+# Confusion Matrix
+print("\nConfusion Matrix")
+print(confusion_matrix(y_test, y_pred))
+
+# Classification Report
+print("\nClassification Report")
+print(classification_report(y_test, y_pred))
+
+# Train Model
+history = model.fit(
+    X_train,
+    y_train,
+    epochs=50,
+    batch_size=8,
+    validation_split=0.2,
+    verbose=1
+)
+
+# Plot
+import matplotlib.pyplot as plt
+
+plt.figure(figsize=(8, 5))
+plt.plot(history.history['accuracy'], label='Training Accuracy')
+plt.plot(history.history['val_accuracy'], label='Validation Accuracy')
+
+plt.xlabel('Epochs')
+plt.ylabel('Accuracy')
+plt.title('Training and Validation Accuracy')
+plt.legend()
+plt.grid(True)
+plt.show()
+
+###################################################################################
+
+## Practical-3 Random Forest Regression
+
+## ## First create a Excel file add - 5 rows of Area, Bedrooms, Age of House,Price
+
+# Step 1: Import Libraries
+
+# Data manipulation
+import pandas as pd
+import numpy as np
+
+# Splitting dataset
+from sklearn.model_selection import train_test_split
+
+# Random Forest Regression
+from sklearn.ensemble import RandomForestRegressor
+
+# Model Evaluation
+from sklearn.metrics import (
+    mean_squared_error,
+    mean_absolute_error,
+    r2_score
+)
+
+# Visualization
+import matplotlib.pyplot as plt
+
+# Step 2: Load Dataset
+data = pd.read_csv("/HousePrice.csv")
+
+# Display the dataset
+print(data.head())
+
+# Step 3: Separate Features and Target
+X = data[['Area', 'Bedrooms', 'Age of House']]
+y = data['Price']
+
+# Step 4: Split Dataset
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, test_size=0.20, random_state=42
+)
+
+# Step 5: Train Model
+model = RandomForestRegressor(
+    n_estimators=100,
+    criterion='squared_error',
+    max_depth=5,
+    random_state=42
+)
+
+model.fit(X_train, y_train)
+
+# Step 7: Predict
+prediction = model.predict(X_test)
+
+# Step 8: Evaluate Model
+
+# R² Score
+print("R2 Score:", r2_score(y_test, prediction))
+
+# Mean Squared Error
+print("MSE:", mean_squared_error(y_test, prediction))
+
+# Step 9: Predict New House Price
+new_house = pd.DataFrame(
+    [[1800, 3, 6]],
+    columns=['Area', 'Bedrooms', 'Age of House']
+)
+
+price = model.predict(new_house)
+
+print(price)
+
+# Step 10: Feature Importance
+importance = model.feature_importances_
+
+for feature, score in zip(X.columns, importance):
+    print(feature, score)
+
+# Step 11: Visualize Feature Importance
+plt.figure(figsize=(6, 4))
+plt.bar(X.columns, importance)
+plt.title("Feature Importance")
+plt.xlabel("Features")
+plt.ylabel("Importance")
+plt.show()
+
+##############################################################################
+
+##Practical-9 Pyspark
+
+
+# Step 1: Install PySpark
+!pip install pyspark
+
+# Step 2: Import libraries and create dataset
+import pyspark
+import pandas as pd
+from pyspark.sql import SparkSession
+
+# Create employee dataset
+data = {
+    "Name": ["John", "Aarav", "Priya", "Rahul", "Aman",
+             "Vikram", "Neha", "Rohan", "Ananya", "Karan"],
+    "Experince": [1, 3, 2, 5, 4, 6, 1, 7, 3, 5],
+    "Age": [22, 25, 24, 29, 27, 31, 23, 33, 26, 30],
+    "Salary": [25000, 42000, 35000, 60000, 52000,
+               70000, 28000, 85000, 45000, 65000]
+}
+
+df = pd.DataFrame(data)
+
+# Save dataset as CSV
+df.to_csv('/content/Book1.csv', index=False)
+print("Book1.csv created successfully!")
+
+# Step 3: Read the CSV file using Pandas
+print("\nReading CSV using Pandas:")
+print(pd.read_csv('/content/Book1.csv'))
+
+# Step 4: Start Spark session
+spark = SparkSession.builder.appName('Practice').getOrCreate()
+
+# Step 5: Read dataset and store in a variable
+df_spark = spark.read.csv(
+    '/content/Book1.csv',
+    header=True,
+    inferSchema=True
+)
+
+# Step 6: Display the dataset
+print("\nDisplaying Dataset:")
+df_spark.show()
+
+# Step 7: Check the type of data
+print("\nType of Data:")
+print(type(df_spark))
+
+# Step 8: Check Schema
+print("\nSchema:")
+df_spark.printSchema()
+
+# Step 9: Display the first 3 values
+print("\nFirst 3 Values:")
+print(df_spark.head(3))
+
+# Step 10: Get names of the columns
+print("\nColumns:")
+print(df_spark.columns)
+
+# Step 11: Select a specific column
+print("\nName Column:")
+df_spark.select('Name').show()
+
+# Step 12: Select multiple columns
+print("\nName and Experince Columns:")
+df_spark.select(['Name', 'Experince']).show()
+
+# Step 13: Check data types
+print("\nData Types:")
+print(df_spark.dtypes)
+
+# Step 14: Describe the dataset
+print("\nDataset Description:")
+df_spark.describe().show()
+
+# Step 15: Add a new column
+df_spark = df_spark.withColumn(
+    'Experience After 2 year',
+    df_spark['Experince'] + 2
+)
+print("\nAfter Adding a Column:")
+df_spark.show()
+
+# Step 16: Drop the added column
+df_spark = df_spark.drop('Experience After 2 year')
+print("\nAfter Dropping a Column:")
+df_spark.show()
+
+# Step 17: Rename a column
+print("\nAfter Renaming Name to EmpName:")
+df_spark.withColumnRenamed('Name', 'EmpName').show()
+
+# Step 18: Drop rows where all values are missing
+print("\nDrop Rows Where All Values Are Missing:")
+df_spark.na.drop(how="all").show()
+
+# Step 19: Drop rows where any value is missing
+print("\nDrop Rows Where Any Value Is Missing:")
+df_spark.na.drop(how="any").show()
+
+# Step 20: Drop rows using threshold and subset
+print("\nThreshold - Keep Rows with at Least 4 Non-Null Values:")
+df_spark.na.drop(how="all", thresh=4).show()
+
+print("\nDrop Rows Where Experince Is Missing:")
+df_spark.na.drop(how="any", subset=['Experince']).show()
+
+# Final Output: Display dataset, schema, and total rows
+print("\nFinal Dataset:")
+df_spark.show()
+
+print("\nFinal Schema:")
+df_spark.printSchema()
+
+print("Total Rows:", df_spark.count())
+
