@@ -272,3 +272,113 @@ Step 10:  Go to the sbin folder in the hadoop directory. Open cmd there, and wri
 start-dfs.cmd and in same 
 start-yarn.cmd
 jps
+
+##################################################################################################################################
+
+##Practical-5: WordCount
+Step 1: Create the WordCount folder in C drive
+
+Step 2: Open the folder in VSCode
+
+Step 3: Create these file init:
+WordCountMapper.java
+WordCountReducer.java
+WordCountDriver.java
+
+Step 4: Copy this code into the first file
+WordCountMapper.java 
+
+import java.io.IOException;
+import java.util.StringTokenizer;
+import org.apache.hadoop.io.*;
+import org.apache.hadoop.mapreduce.Mapper;
+
+public class WordCountMapper
+    extends Mapper<LongWritable, Text, Text, IntWritable> {
+
+    public void map(LongWritable key, Text value, Context context)
+        throws IOException, InterruptedException {
+
+        StringTokenizer words = new StringTokenizer(value.toString());
+
+        while (words.hasMoreTokens()) {
+            context.write(new Text(words.nextToken()), new IntWritable(1));
+        }
+    }
+}
+
+WordCountReducer.java 
+
+import java.io.IOException;
+import org.apache.hadoop.io.*;
+import org.apache.hadoop.mapreduce.Reducer;
+
+public class WordCountReducer
+    extends Reducer<Text, IntWritable, Text, IntWritable> {
+
+    public void reduce(Text key, Iterable<IntWritable> values,
+        Context context) throws IOException, InterruptedException {
+
+        int sum = 0;
+
+        for (IntWritable value : values) {
+            sum += value.get();
+        }
+
+        context.write(key, new IntWritable(sum));
+    }
+}
+
+WordCountDriver.java 
+
+import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.io.*;
+import org.apache.hadoop.mapreduce.Job;
+import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
+import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
+
+public class WordCountDriver {
+
+    public static void main(String[] args) throws Exception {
+
+        Configuration conf = new Configuration();
+        Job job = Job.getInstance(conf, "Word Count");
+
+        job.setJarByClass(WordCountDriver.class);
+        job.setMapperClass(WordCountMapper.class);
+        job.setReducerClass(WordCountReducer.class);
+
+        job.setOutputKeyClass(Text.class);
+        job.setOutputValueClass(IntWritable.class);
+
+        FileInputFormat.addInputPath(job, new Path(args[0]));
+        FileOutputFormat.setOutputPath(job, new Path(args[1]));
+
+        System.exit(job.waitForCompletion(true) ? 0 : 1);
+    }
+}
+
+Step 5: Inside the same C:\WordCount folder, create a text file named input.txt.
+Paste this text : 
+Big data technologies like Hadoop and Spark are used to process large datasets efficiently.
+Hive and Pig are tools that make data analysis easier on top of Hadoop.
+
+Step 6: Open CMD inside C:\WordCount
+Run this cmmnd: 
+javac -classpath "C:\hadoop-3.4.3\share\hadoop\common\*;C:\hadoop-3.4.3\share\hadoop\common\lib\*;C:\hadoop-3.4.3\share\hadoop\mapreduce\*;C:\hadoop-3.4.3\share\hadoop\hdfs\*" -d . WordCountMapper.java WordCountReducer.java WordCountDriver.java
+After that run:
+dir *.class
+
+Step 7: 
+jar -cvf wordcount.jar *.class
+cd /d C:\hadoop\sbin
+start-dfs.cmd
+hdfs dfs -mkdir -p /users/inputs
+hdfs dfs -put input.txt /users/inputs
+
+Step 8: Open http://localhost:9870, navigate to Utilities → Browse the file system, and check the users/inputs directory.
+
+Step 9: Return to C:\WordCount cmd and run:
+hadoop jar wordcount.jar WordCountDriver /users/inputs /user/output
+hdfs dfs -cat /user/output/part-r-00000
