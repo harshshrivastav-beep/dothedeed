@@ -1,0 +1,274 @@
+##Practical – 6 Installation of Spark and Scala Programs
+Step 1: Check Java installation
+Cmd - java -version
+Cmd - javac -version
+
+Step 2: Download Apache Spark
+Click https://repo.huaweicloud.com/apache/spark/spark-3.2.3/
+Find spark-3.2.3-bin-hadoop3.2.tgz there an install it
+Right click the file and extract it 
+
+Step 3: Locate the JDK installation
+Open File Explorer and navigate to: C:\Program Files (x86)\Java\jdk1.8.0_202
+Open the bin folder and verify the presence of java.exe and javac.exe
+
+Step 4: Open Environment Variables
+Under System variables:
+1.	Click New…
+2.	Enter these values:
+Variable name - JAVA_HOME
+Variable value - C:\Program Files (x86)\Java\jdk1.8.0_202
+Still under System variables:
+
+Select Path and click Edit…
+Click New.
+Add this exact path: %JAVA_HOME%\bin
+Click ok ok ok
+
+Step 5: Open a new Command Prompt and run these commands
+java -version
+javac -version
+
+Step 6: Copy the Spark folder path
+1.	Open the extracted folder
+2.	Go back one level to see the inner folder.
+3.	Cut the inner spark-3.2.3-bin-hadoop3.2 folder.
+4.	Open C:\ in File Explorer.
+5.	Create a folder named Spark 
+6.	Paste the extracted folder inside C:\Spark.
+
+Step 7: Open Edit the system environment variables → Environment Variables
+Under System variables, click New and enter:
+Variable name - SPARK_HOME
+Variable value - C:\Spark\spark-3.2.3-bin-hadoop3.2
+
+
+Add Spark to Path
+1.	Under System variables, select Path → Edit…
+2.	Click New and add:  %SPARK_HOME%\bin
+Click ok ok ok
+Step 8: Open a new Command Prompt and run: spark-shell
+If error occurred on running spark-shell, open cmd as administrator run :
+mkdir C:\Java
+mklink /J C:\Java\jdk8 "C:\Program Files (x86)\Java\jdk1.8.0_202"
+Then:
+1.	Click Environment Variables…
+2.	Under System variables, select JAVA_HOME and click Edit…
+3.	Change its value to: C:\Java\jdk8
+Then again open new cm and run spark-shell
+
+Commans to perform in scala
+println("Your Name")
+Enter
+
+Then try:
+val a = 10
+val b = 20
+val sum = a + b
+println(sum)
+
+##################################################################################################################################
+
+##Practical 7 – Scala
+Step 1 — Open the Scala shell
+Open Command Prompt and run: spark-shell
+If not set up then follow pract-6 to set it up and then perform this practical
+
+Step 2: Addition of two numbers
+Enter each line separately -
+val a = 10
+val b = 20
+val sum = a + b
+println(sum)
+
+Step 3 — Locate the people.json file
+1.	Open File Explorer.
+2.	Navigate to this folder:  C:\Spark\spark-3.2.3-bin-hadoop3.2\examples\src\main\resources
+Look for people.json.  If the file is present run this cmmnd in scala shell
+
+Step 4 - Load people.json into Spark
+Enter cmmnd :
+ val people = spark.read.json("C:/Spark/spark-3.2.3-bin-hadoop3.2/examples/src/main/resources/people.json")
+
+Enter following cmmnds one after another -- >
+•	people.show()
+
+•	people.printSchema()
+
+•	people.select("name").show()
+
+•	people.select("name", "age").show()
+
+•	people.filter(people("age") > 20).show()
+
+•	val csvData = spark.read.option("header", "true").option("inferSchema", "true").csv("C:/Spark/spark-3.2.3-bin-hadoop3.2/examples/src/main/resources/people.csv")
+
+•	csvData.show()
+
+•	val csvData2 = spark.read.option("header", "true").option("inferSchema", "true").option("delimiter", ";").csv("C:/Spark/spark-3.2.3-bin-hadoop3.2/examples/src/main/resources/people.csv")
+
+•	csvData2.show()
+
+•	csvData2.printSchema()
+
+Perform this only if it is specifically stated to perform SQl queries :
+
+people.createOrReplaceTempView("people")
+
+spark.sql("SELECT * FROM people").show()
+
+spark.sql("SELECT name, age FROM people").show()
+
+spark.sql("SELECT * FROM people WHERE age > 20").show()
+
+spark.sql("SELECT COUNT(*) AS total_people FROM people").show()
+
+##################################################################################################################################
+
+##Practical – 8 : GraphX
+Step 1: Open Command Prompt and run: spark-shell
+Run the following cmmnds one after another 
+
+Step 2 — Import GraphX libraries :
+import org.apache.spark._
+import org.apache.spark.rdd.RDD
+import org.apache.spark.graphx._
+
+Step 3 — Create graph vertices
+val vertices = Array((1L, "A"), (2L, "B"), (3L, "C"))
+val vRDD = sc.parallelize(vertices)
+vRDD.take(1)
+vRDD.take(2)
+
+Step 4 — Create graph edges
+> val edges = Array(
+  Edge(1L, 2L, 1800),
+  Edge(2L, 3L, 800),
+  Edge(3L, 1L, 1400)
+)
+> val eRDD = sc.parallelize(edges)
+> eRDD.take(2)
+
+Step 5 — Create the Graph
+val nowhere = "nowhere"
+val graph = Graph(vRDD, eRDD, nowhere)
+
+Step 6 — Display all vertices
+graph.vertices.collect.foreach(println)
+
+Step 7 — Display all edges
+graph.edges.collect.foreach(println)
+
+Step 8 — Count vertices and edges
+val numairports = graph.numVertices
+val numroutes = graph.numEdges
+println(numairports)
+println(numroutes)
+
+Step 9 — Filter edges by property
+graph.edges.filter { case Edge(src, dst, prop) => prop > 1000 }.collect.foreach(println)
+
+Step 10 — Display graph triplets
+graph.triplets.take(3).foreach(println)
+
+Step 11 — Calculate in-degrees
+val i = graph.inDegrees
+i.collect.foreach(println)
+
+##################################################################################################################################
+
+##Practical-4 : 
+Step 1: Install Hadoop
+Click https://repo.huaweicloud.com/apache/hadoop/common/hadoop-3.4.3/hadoop-3.4.3.tar.gz
+
+Step 2: Extract Folder 
+Cut the Folder inside hadoop-3.4.3 and paste that in C drive
+Rename the hadoop-3.4.3 folder name to hadoop
+
+Step 3: Inside hadoop folder create another folder name – data
+Inside that data folder create two more folders name – datanode and  namenode
+
+Step 4: Go in Environment Variable
+Under System variables, click New
+Enter these values:
+Variable name - HADOOP_HOME
+Variable value - C:\hadoop
+Click ok 
+
+Step 5: Under System variables, select Path. Click Edit.
+Add the Hadoop bin path, Click New and enter:  C:\hadoop\bin
+Click New again and enter: C:\hadoop\sbin
+Click OK ok ok
+
+Step 6: Open new cmd and run:
+echo %HADOOP_HOME%
+hadoop version
+
+Step 7: In the Hadoop directory, browse to etc/hadoop/ and open core-site.xml in Notepad.
+Replace its existing contents with the following configuration:
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet type="text/xsl" href="configuration.xsl"?>
+<configuration>
+    <property>
+        <name>fs.defaultFS</name>
+        <value>hdfs://localhost:9000</value>
+    </property>
+</configuration>
+Save the file
+
+Step 8: Open: C:\hadoop\etc\hadoop
+Find hdfs-site.xml.
+Open it in Notepad or VS Code.
+Replace its contents with this configuration:
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet type="text/xsl" href="configuration.xsl"?>
+<configuration>
+    <property>
+        <name>dfs.replication</name>
+        <value>1</value>
+    </property>
+
+    <property>
+        <name>dfs.namenode.name.dir</name>
+        <value>file:///C:/hadoop/data/namenode</value>
+    </property>
+
+    <property>
+        <name>dfs.datanode.data.dir</name>
+        <value>file:///C:/hadoop/data/datanode</value>
+    </property>
+</configuration>
+Save the file
+
+Step 9 : Do the same for mapred-site.xml & yarn-site.xml.
+
+mapred-site.xml 
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet type="text/xsl" href="configuration.xsl"?>
+<configuration>
+    <property>
+        <name>mapreduce.framework.name</name>
+        <value>yarn</value>
+    </property>
+</configuration>
+
+yarn-site.xml 
+
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet type="text/xsl" href="configuration.xsl"?>
+<configuration>
+    <property>
+        <name>yarn.nodemanager.aux-services</name>
+        <value>mapreduce_shuffle</value>
+    </property>
+
+    <property>
+        <name>yarn.nodemanager.aux-services.mapreduce_shuffle.class</name>
+        <value>org.apache.hadoop.mapred.ShuffleHandler</value>
+    </property>
+</configuration>
+
+Step 10:  Go to the sbin folder in the hadoop directory. Open cmd there, and write the command:
+start-dfs.cmd and in same 
+start-yarn.cmd
+jps
